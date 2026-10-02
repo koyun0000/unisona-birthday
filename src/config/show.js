@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 年度換版只需要改這個檔案：角色、徽章、線索、旋律、節奏、文字、結尾字母。
  * 本檔案不使用任何 DOM API，可以直接被 Node 匯入（tools/verify-puzzle.mjs）。
  */
@@ -212,27 +212,41 @@ export const DRAW_REQUIREMENTS = {
  * 詳見 ASSETS.md
  * ------------------------------------------------------------------ */
 export const AUDIO = {
+  // 放了人聲錄音之後改成 true
   useSamples: false,
   sampleBasePath: './assets/audio/',
+
+  /**
+   * 只列出「確實已經放進 assets/audio/ 的檔案」。
+   * 沒列到的音會用合成音，可以分批上線。
+   *
+   * 注意：列了卻不存在的檔案會在瀏覽器主控台留下 404 錯誤，
+   * 所以請把還沒錄好的那幾行保持註解掉。
+   * 副檔名沒有限制（mp3 / m4a / wav 都可以），但建議用 mp3，檔案小很多。
+   *
+   * key 的格式是 <音色>.<音名>：
+   *   rehearsal = 第三關排練的短音
+   *   solo      = 第四關前三句的逐音接唱
+   *   chorus    = 第四關最後一句的合唱
+   */
   samples: {
-    // 排練用短音
-    'rehearsal.C4': 'rehearsal-c4.mp3',
-    'rehearsal.D4': 'rehearsal-d4.mp3',
-    'rehearsal.E4': 'rehearsal-e4.mp3',
-    'rehearsal.F4': 'rehearsal-f4.mp3',
-    // 逐音接唱
-    'solo.C4': 'solo-c4.mp3',
-    'solo.D4': 'solo-d4.mp3',
-    'solo.E4': 'solo-e4.mp3',
-    'solo.F4': 'solo-f4.mp3',
-    'solo.G4': 'solo-g4.mp3',
-    'solo.A4': 'solo-a4.mp3',
-    'solo.C5': 'solo-c5.mp3',
-    // 最後一句合唱
-    'chorus.F4': 'chorus-f4.mp3',
-    'chorus.G4': 'chorus-g4.mp3',
-    'chorus.A4': 'chorus-a4.mp3',
-    'chorus.Bb4': 'chorus-bb4.mp3',
+    // 'rehearsal.C4': 'rehearsal-c4.mp3',
+    // 'rehearsal.D4': 'rehearsal-d4.mp3',
+    // 'rehearsal.E4': 'rehearsal-e4.mp3',
+    // 'rehearsal.F4': 'rehearsal-f4.mp3',
+
+    // 'solo.C4': 'solo-c4.mp3',
+    // 'solo.D4': 'solo-d4.mp3',
+    // 'solo.E4': 'solo-e4.mp3',
+    // 'solo.F4': 'solo-f4.mp3',
+    // 'solo.G4': 'solo-g4.mp3',
+    // 'solo.A4': 'solo-a4.mp3',
+    // 'solo.C5': 'solo-c5.mp3',
+
+    // 'chorus.F4': 'chorus-f4.mp3',
+    // 'chorus.G4': 'chorus-g4.mp3',
+    // 'chorus.A4': 'chorus-a4.mp3',
+    // 'chorus.Bb4': 'chorus-bb4.mp3',
   },
   masterVolume: 0.85,
 };
