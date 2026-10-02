@@ -164,13 +164,79 @@ y 是負的、越小越高；單位是遊戲的座標（範本上 1 單位 = 3 p
 
 ---
 
+## 二之二、電子郵件封面（已完成）
+
+信件裡**不能有任何互動**。所有郵件軟體都會把 `<script>` 整段刪掉，
+因為信是任何人都能寄的，若信裡的 JavaScript 能執行，陌生人就能在你的收件匣裡跑程式。
+所以畫布、聲音、拖曳在信裡一律不可能。
+
+分工是：**信件 = 邀請函，網頁 = 遊戲本體。**
+信裡唯一會動的東西是 GIF。
+
+### 已經產好的檔案
+
+| 檔案 | 用途 | 大小 |
+| --- | --- | --- |
+| `assets/email-cover.gif` | 信件用的動圖：禮物盒晃動 → 掀開一條縫 → 暖光與音符溢出 → 「點開看看」 → 闔上，循環 | 約 570 KB，600 × 380，2.8 秒一輪 |
+| `assets/email-cover.png` | 靜態版。**Outlook 只會顯示 GIF 的第一格**，另外也可以當社群分享的預覽圖 | 約 90 KB |
+
+禮物盒刻意**不洩漏生日歌**：看得出裡面有東西、而且跟音樂有關，但看不出是什麼。
+
+### 重新產生 / 調整
+
+```bash
+python tools/make-email-cover.py
+python tools/make-email-cover.py --hint "打開看看"      # 換提示字
+python tools/make-email-cover.py --frames 32 --colors 32  # 讓檔案更小
+python tools/make-email-cover.py --ms 90                  # 放慢
+```
+
+動畫本身是 `tools/email-cover/cover.html`，純 SVG，改顏色或形狀都在那裡。
+產生流程是用 Chromium 逐格截圖再組成 GIF，所以畫面跟遊戲是同一套手繪風格與配色。
+
+### 信件 HTML
+
+```html
+<a href="https://koyun0000.github.io/unisona-birthday/"
+   style="text-decoration:none">
+  <img src="https://koyun0000.github.io/unisona-birthday/assets/email-cover.gif"
+       alt="UNISONA 的生日禮物，點開看看"
+       width="600"
+       style="display:block;max-width:100%;height:auto;border:0;border-radius:12px">
+</a>
+```
+
+圖片直接放在 Pages 上，不用另外找圖床。
+
+重點：
+
+- `alt` 一定要寫。很多人的信箱預設擋圖片，擋掉時只看得到這行字。
+- `width="600"` 要寫在標籤上，不能只寫在 CSS 裡，Outlook 不吃。
+- `display:block` 可以消掉圖片下方那條多餘的空隙。
+- 網址要用完整的 `https://`，信件裡不能用相對路徑。
+
+### 用 LINE 傳的話
+
+點開時是 LINE 的內建瀏覽器，這類 App 內建瀏覽器對 Web Audio 常有限制，
+可能沒有聲音——而這個遊戲的重點就是聽出生日歌。建議訊息寫成：
+
+```
+UNISONA 的生日小禮物，大概三分鐘
+記得開聲音，建議用 Safari 或 Chrome 開啟
+https://koyun0000.github.io/unisona-birthday/
+```
+
+寄出前先用 LINE 傳給自己測一次，確認按下「開始」之後聽得到聲音。
+
+---
+
 ## 三、可選擇用圖片替換（不做也沒關係）
 
 這些是純粹的美術升級，程式在沒有檔案時完全不會去抓，也不會出現 404。
 
 | 用途 | 建議檔名 | 格式 | 尺寸建議 | 透明背景 | 替換位置 |
 | --- | --- | --- | --- | --- | --- |
-| 電子郵件封面圖（信裡那張可點的圖） | `assets/email-cover.png` | PNG 或 JPG | 1200 × 630 | 不需要 | 只放在信件 HTML，程式不使用 |
+| 電子郵件封面圖 | 已經做好了，見下一節 | GIF ＋ PNG | 600 × 380 | 不需要 | 只放在信件 HTML，遊戲本身不使用 |
 | 舞台背景（取代純色背牆） | `assets/stage-backdrop.png` | PNG | 2000 × 1400（viewBox 1000 × 700 的 2 倍） | 不需要 | `src/art/stage.js` → `buildBackdrop()`，把 `.wall` 與 `.floor` 換成 `<image>` |
 | 後台入口背景 | `assets/door-backdrop.png` | PNG | 2000 × 760 | 不需要 | `src/art/door.js` 的 `bg` 群組 |
 | 社團標誌（放在左上角 UNISONA 字樣旁） | `assets/logo.svg` | SVG 優先 | 高度 24px 等比 | **需要** | `index.html` 的 `#hud-brand` |

@@ -1,0 +1,142 @@
+﻿<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>UNISONA 信件封面</title>
+<style>
+  :root {
+    --paper: #fdf4e6;
+    --ink: #2f2a26;
+    --accent: #c9742c;
+    --box: #ecd8bb;
+    --lid: #e0c49f;
+    --ribbon: #c9742c;
+    --muted: #6c6158;
+  }
+  * { margin: 0; padding: 0; }
+  html, body { background: var(--paper); }
+  body { width: 600px; height: 380px; overflow: hidden; }
+  svg { display: block; width: 600px; height: 380px; }
+
+  .ink { fill: none; stroke: var(--ink); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .fill-box { fill: var(--box); stroke: var(--ink); stroke-width: 4.2; stroke-linejoin: round; }
+  .fill-lid { fill: var(--lid); stroke: var(--ink); stroke-width: 4.2; stroke-linejoin: round; }
+  .ribbon { fill: var(--ribbon); stroke: var(--ink); stroke-width: 3.6; stroke-linejoin: round; }
+
+  .brand {
+    font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size: 18px; font-weight: 700; letter-spacing: 0.32em; fill: var(--muted);
+  }
+  .hint {
+    font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size: 27px; font-weight: 700; fill: var(--accent); text-anchor: middle;
+  }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="spill">
+      <stop offset="0%"   stop-color="#fff0c4" stop-opacity="1"/>
+      <stop offset="45%"  stop-color="#f8cd78" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#f6c66a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="600" height="380" fill="var(--paper)"/>
+  <text class="brand" x="34" y="46">UNISONA</text>
+
+  <!-- 盒縫溢出的暖光（在盒身之下、盒蓋之上，看起來像從裡面透出來） -->
+  <ellipse id="glow" cx="300" cy="196" rx="190" ry="104" fill="url(#spill)" opacity="0"/>
+
+  <!-- 盒身（會輕輕晃） -->
+  <g id="body">
+    <path class="fill-box" d="M166 198 L434 198 L423 330 Q300 341 177 330 Z"/>
+    <path id="mouth" d="M166 198 L434 198 L427 216 Q300 226 173 216 Z" fill="#8a7358" stroke="var(--ink)" stroke-width="3.4" stroke-linejoin="round" opacity="0"/>
+    <path class="ribbon" d="M281 198 L319 198 L315 336 L285 336 Z"/>
+    <path class="ink" d="M177 330 Q300 341 423 330"/>
+  </g>
+
+  <!-- 盒蓋（會掀起來） -->
+  <g id="lid">
+    <path class="fill-lid" d="M148 200 L452 200 L440 154 Q300 142 160 154 Z"/>
+    <path class="ribbon" d="M281 148 L319 148 L319 200 L281 200 Z"/>
+    <g id="bow">
+      <path class="ribbon" d="M300 146 Q256 112 234 132 Q222 154 300 154 Z"/>
+      <path class="ribbon" d="M300 146 Q344 112 366 132 Q378 154 300 154 Z"/>
+      <circle cx="300" cy="148" r="11.5" fill="var(--ribbon)" stroke="var(--ink)" stroke-width="3.6"/>
+    </g>
+  </g>
+
+  <!-- 逃出來的音符：畫在盒蓋之上，才看得到 -->
+  <g id="notes">
+    <g class="note" data-x="250" data-y="186" data-dx="-140" data-lift="34" data-scale="1">
+      <ellipse cx="-4" cy="6" rx="6.6" ry="5" transform="rotate(-20 -4 6)" fill="var(--accent)"/>
+      <path d="M1.6 5 L1.6 -13 Q8.6 -11.2 10.4 -5.4" fill="none" stroke="var(--accent)" stroke-width="2.8" stroke-linecap="round"/>
+    </g>
+    <g class="note" data-x="352" data-y="188" data-dx="146" data-lift="28" data-scale="0.86">
+      <ellipse cx="-4" cy="6" rx="6.6" ry="5" transform="rotate(-20 -4 6)" fill="var(--accent)"/>
+      <path d="M1.6 5 L1.6 -13 Q8.6 -11.2 10.4 -5.4" fill="none" stroke="var(--accent)" stroke-width="2.8" stroke-linecap="round"/>
+    </g>
+    <g class="note" data-x="330" data-y="180" data-dx="118" data-lift="74" data-scale="0.72">
+      <ellipse cx="-4" cy="6" rx="6.6" ry="5" transform="rotate(-20 -4 6)" fill="var(--accent)"/>
+      <path d="M1.6 5 L1.6 -13 Q8.6 -11.2 10.4 -5.4" fill="none" stroke="var(--accent)" stroke-width="2.8" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <text class="hint" id="hint" x="300" y="364" opacity="0">點開看看</text>
+</svg>
+
+<script>
+  // 由 tools/make-email-cover.py 逐格呼叫，不會在信件裡執行
+  const lid = document.getElementById('lid');
+  const body = document.getElementById('body');
+  const glow = document.getElementById('glow');
+  const hint = document.getElementById('hint');
+  const noteEls = [...document.querySelectorAll('.note')];
+
+  const ease = (x) => x * x * (3 - 2 * x);
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+  window.setFrame = function (t) {
+    // 前段：盒子用力晃，像裡面有東西想出來。
+    // 幅度要夠大，不然在信件裡縮小之後看不出來。
+    const wiggle = t < 0.30 ? Math.sin(t * Math.PI * 15) * (1 - t / 0.30) : 0;
+    const shake = `rotate(${(wiggle * 6).toFixed(3)} 300 336) `
+      + `translate(0 ${(-Math.abs(wiggle) * 9).toFixed(2)})`;
+    body.setAttribute('transform', shake);
+
+    // 掀蓋：0.32 開始，0.66 全開，之後慢慢闔回去，t=1 回到起點
+    let open = 0;
+    if (t >= 0.32 && t < 0.66) open = ease(clamp01((t - 0.32) / 0.34));
+    else if (t >= 0.66) open = 1 - ease(clamp01((t - 0.66) / 0.34));
+
+    // 蓋子要跟著身體一起晃，否則晃動時盒蓋會脫節
+    lid.setAttribute('transform',
+      shake
+      + ` translate(${(-open * 16).toFixed(2)} ${(-open * 58).toFixed(2)}) `
+      + `rotate(${(-open * 9).toFixed(2)} 300 180)`);
+
+    glow.setAttribute('opacity', (open * 0.92).toFixed(3));
+    document.getElementById('mouth').setAttribute('opacity', (open * 0.9).toFixed(3));
+
+    noteEls.forEach((n) => {
+      const x = +n.dataset.x, y = +n.dataset.y;
+      const dx = +n.dataset.dx, lift = +n.dataset.lift, sc = +n.dataset.scale;
+      const p = clamp01((open - 0.15) / 0.85);
+      const s = (0.95 + p * 0.8) * sc;
+      n.setAttribute('transform',
+        `translate(${(x + dx * p).toFixed(1)} ${(y - lift * p).toFixed(1)}) `
+        + `scale(${s.toFixed(3)}) rotate(${(Math.sign(dx) * p * 14).toFixed(1)})`);
+      // 飄到最高點時淡出，像聲音散掉
+      const fade = p < 0.1 ? 0 : Math.min(1, (p - 0.1) / 0.22) * (1 - Math.max(0, (p - 0.88) / 0.12) * 0.45);
+      n.setAttribute('opacity', fade.toFixed(3));
+    });
+
+    hint.setAttribute('opacity', (ease(clamp01((t - 0.34) / 0.16)) * 0.95).toFixed(3));
+  };
+
+  window.setFrame(0);
+</script>
+</body>
+</html>
