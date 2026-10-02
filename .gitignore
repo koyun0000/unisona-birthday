@@ -1,0 +1,17 @@
+# 作業系統
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 編輯器
+.vscode/
+.idea/
+*.swp
+
+# Python 預覽伺服器
+__pycache__/
+*.pyc
+
+# 本機暫存
+*.log
+.tmp/

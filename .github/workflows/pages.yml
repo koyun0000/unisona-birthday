@@ -1,0 +1,54 @@
+name: Verify and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  # 設定檔有問題就不要上線：線索必須只有一組解，旋律與結尾牌面必須正確
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 驗證謎題與演出設定
+        run: node tools/verify-puzzle.mjs
+      - name: 檢查沒有絕對路徑（子路徑部署會 404）
+        run: |
+          if grep -rnE '(src|href)="/|url\(/' --include='*.html' --include='*.css' --include='*.js' .; then
+            echo "找到以 / 開頭的資源路徑，請改成相對路徑（./...）"
+            exit 1
+          fi
+          echo "全部都是相對路徑。"
+
+  deploy:
+    needs: verify
+    if: github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          # 這個 repository 的根目錄就是網站本身。
+          # 若你把專案放在別的 repo 的子資料夾，改成 ./unisona-birthday
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
