@@ -27,6 +27,13 @@ import webbrowser
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.dirname(HERE)
 
+# Windows 的主控台預設不是 UTF-8，中文訊息會變亂碼
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding='utf-8', errors='replace')
+    except (AttributeError, ValueError):
+        pass
+
 EXTRA_TYPES = {
     '.mjs': 'text/javascript',
     '.js': 'text/javascript',
@@ -94,7 +101,7 @@ def main():
         print(f'預覽網址　：{url}')
         if not args.root:
             print('（已模擬 GitHub Pages 子路徑；任何 404 都代表上傳後會壞掉）')
-        print('按 Ctrl+C 結束。\n')
+        print('按 Ctrl+C 結束。\n', flush=True)
         if not args.no_open:
             threading.Timer(0.6, lambda: webbrowser.open(url)).start()
         try:
