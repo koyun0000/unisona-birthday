@@ -34,11 +34,16 @@ for _stream in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
+# 跟 GitHub Pages 一樣，文字類型都明確標上 charset=utf-8
 EXTRA_TYPES = {
-    '.mjs': 'text/javascript',
-    '.js': 'text/javascript',
+    '.html': 'text/html; charset=utf-8',
+    '.htm': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.mjs': 'text/javascript; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.md': 'text/markdown; charset=utf-8',
     '.svg': 'image/svg+xml',
-    '.json': 'application/json',
     '.webmanifest': 'application/manifest+json',
 }
 
