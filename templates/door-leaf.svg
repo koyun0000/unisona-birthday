@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="612" height="738" viewBox="0 0 612 738">
+  <title>門片</title>
+  <rect width="612" height="738" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="611" height="737" fill="none" stroke="rgba(47,42,38,0.28)" stroke-width="2"/>
+  <line x1="306" y1="0" x2="306" y2="738" stroke="#c9742c" stroke-width="2" stroke-dasharray="8 8" opacity="0.5"/>
+  <line x1="0" y1="369" x2="612" y2="369" stroke="#c9742c" stroke-width="2" stroke-dasharray="8 8" opacity="0.5"/>
+  <text x="14" y="34" font-family="sans-serif" font-size="26" fill="#c9742c" text-anchor="start">門片</text>
+  <text x="14" y="64" font-family="sans-serif" font-size="18" fill="rgba(47,42,38,0.28)" text-anchor="start">會往右滑開，所以請畫成單獨一片門。</text>
+  <text x="600" y="724" font-family="sans-serif" font-size="15" fill="rgba(47,42,38,0.28)" text-anchor="end">612 x 738 px</text>
+</svg>

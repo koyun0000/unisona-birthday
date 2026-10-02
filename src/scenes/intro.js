@@ -1,11 +1,11 @@
-import { h, button } from '../core/dom.js';
+﻿import { h, button } from '../core/dom.js';
 import { createDoorScene } from '../art/door.js';
 
 /** 開場：快遲到了。由「開始」按鈕解鎖音訊。 */
 export function introScene(app) {
   const t = app.cfg.TEXTS.intro;
   const hero = app.cfg.CHARACTERS.find((c) => c.id === app.cfg.HERO_ID);
-  const door = createDoorScene({ heroChar: hero });
+  const door = createDoorScene({ heroChar: hero, art: app.art });
   door.moveHero(330);
   door.setHeroRunning(true);
 

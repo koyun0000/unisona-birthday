@@ -3,6 +3,10 @@
  * 小人的局部座標：腳底在 (0, 0)，身體往負 y 方向長。
  */
 import { s } from '../core/dom.js';
+import {
+  PERSON_BOX, SIGN_BOX, SYMBOL_SIZE, DEFAULT_ANCHORS,
+  CONDUCTOR_BOX, CONDUCTOR_ARM_BOX, CONDUCTOR_ARM_PIVOT,
+} from './layout.js';
 
 /* ---------------- 徽章圖案（24 x 24 方框內） ---------------- */
 export const SYMBOLS = {
@@ -59,8 +63,26 @@ export function symbolNode(key, size, extra = {}) {
   return g;
 }
 
+/**
+ * 徽章：有手繪圖就用圖，沒有就用 SVG path。
+ * 兩者都用同一個尺寸與中心點，所以換圖之後位置不會跑掉。
+ */
+export function symbolArt(key, size, art = null) {
+  const href = art && art.symbol(key);
+  if (!href) return symbolNode(key, size);
+  return s('image', {
+    class: 'symbol-art',
+    href,
+    x: -size / 2,
+    y: -size / 2,
+    width: size,
+    height: size,
+    preserveAspectRatio: 'xMidYMid meet',
+  });
+}
+
 /** 小 SVG，給便條、HTML 介面使用 */
-export function symbolBadgeSvg(key, px = 34) {
+export function symbolBadgeSvg(key, px = 34, art = null) {
   const svg = s('svg', {
     class: 'symbol-chip',
     viewBox: '-20 -20 40 40',
@@ -70,7 +92,7 @@ export function symbolBadgeSvg(key, px = 34) {
     focusable: 'false',
   });
   svg.appendChild(s('circle', { cx: 0, cy: 0, r: 17, class: 'symbol-chip-bg' }));
-  svg.appendChild(symbolNode(key, 21));
+  svg.appendChild(symbolArt(key, 21, art));
   return svg;
 }
 
@@ -103,7 +125,7 @@ export function noteGlyph() {
  * @returns {{g:SVGGElement, parts:object}}
  */
 export function createPerson({
-  id, label, symbol, tint, letter, withCard = false, cardHref = null,
+  id, label, symbol, tint, letter, withCard = false, cardHref = null, art = null,
 }) {
   const g = s('g', {
     class: 'person',
@@ -115,61 +137,96 @@ export function createPerson({
   const inner = s('g', { class: 'person-inner' });
   g.appendChild(inner);
 
+  const poses = art ? art.personPoses(id) : null;
+  const anchor = art ? art.anchorsFor(id) : DEFAULT_ANCHORS;
+
   // 亮起時的柔光
   inner.appendChild(s('ellipse', {
     class: 'person-glow', cx: 0, cy: -100, rx: 54, ry: 112,
   }));
 
-  // 腿
-  inner.appendChild(s('path', {
-    class: 'ink leg',
-    d: 'M -9 0 L -4.5 -66 M 9 0 L 4.5 -66 M -14 0 L -6 0 M 6 0 L 14 0',
-  }));
+  let armsDown = null;
+  let armsUp = null;
 
-  // 身體
-  inner.appendChild(s('path', {
-    class: 'torso',
-    d: 'M -17 -66 Q -19.5 -112 -14 -126 Q 0 -131.5 14 -126 Q 19.5 -112 17 -66 Z',
-    style: { '--tint': tint },
-  }));
+  if (poses) {
+    // 手繪三張全身圖。CSS 依照 sing / holding-sign 切換顯示哪一張。
+    g.classList.add('drawn');
+    for (const name of ['normal', 'sing', 'sign']) {
+      if (!poses[name]) continue;
+      inner.appendChild(s('image', {
+        class: `pose pose-${name}`,
+        href: poses[name],
+        x: PERSON_BOX.x,
+        y: PERSON_BOX.y,
+        width: PERSON_BOX.w,
+        height: PERSON_BOX.h,
+        preserveAspectRatio: 'xMidYMax meet',
+      }));
+    }
+  } else {
+    // 腿
+    inner.appendChild(s('path', {
+      class: 'ink leg',
+      d: 'M -9 0 L -4.5 -66 M 9 0 L 4.5 -66 M -14 0 L -6 0 M 6 0 L 14 0',
+    }));
 
-  // 手臂（放下 / 舉起 兩種）
-  const armsDown = s('path', {
-    class: 'ink arms arms-down',
-    d: 'M -14 -122 Q -27 -108 -25 -90 M 14 -122 Q 27 -108 25 -90',
+    // 身體
+    inner.appendChild(s('path', {
+      class: 'torso',
+      d: 'M -17 -66 Q -19.5 -112 -14 -126 Q 0 -131.5 14 -126 Q 19.5 -112 17 -66 Z',
+      style: { '--tint': tint },
+    }));
+
+    // 手臂（放下 / 舉起 兩種）
+    armsDown = s('path', {
+      class: 'ink arms arms-down',
+      d: 'M -14 -122 Q -27 -108 -25 -90 M 14 -122 Q 27 -108 25 -90',
+    });
+    armsUp = s('path', {
+      class: 'ink arms arms-up',
+      d: 'M -14 -122 Q -31 -152 -23 -194 M 14 -122 Q 31 -152 23 -194',
+    });
+    inner.appendChild(armsDown);
+    inner.appendChild(armsUp);
+  }
+
+  // 胸前徽章（圖案）。不論身體是手繪還是 SVG，徽章都由程式疊上去，
+  // 這樣謎題的辨識度與換版都還在設定檔手上。
+  const emblem = s('g', {
+    class: 'emblem',
+    transform: `translate(${anchor.emblem.x} ${anchor.emblem.y})`,
   });
-  const armsUp = s('path', {
-    class: 'ink arms arms-up',
-    d: 'M -14 -122 Q -31 -152 -23 -194 M 14 -122 Q 31 -152 23 -194',
-  });
-  inner.appendChild(armsDown);
-  inner.appendChild(armsUp);
-
-  // 胸前徽章（圖案）
-  const emblem = s('g', { class: 'emblem', transform: 'translate(0 -104)' });
-  emblem.appendChild(s('circle', { class: 'emblem-bg', cx: 0, cy: 0, r: 16, style: { '--tint': tint } }));
-  emblem.appendChild(symbolNode(symbol, 21));
+  emblem.appendChild(s('circle', {
+    class: 'emblem-bg', cx: 0, cy: 0, r: anchor.emblem.r, style: { '--tint': tint },
+  }));
+  emblem.appendChild(symbolArt(symbol, SYMBOL_SIZE, art));
   inner.appendChild(emblem);
 
-  // 頭
-  inner.appendChild(s('circle', { class: 'head', cx: 0, cy: -148, r: 20 }));
-  inner.appendChild(s('path', {
-    class: 'ink hair',
-    d: 'M -11 -165 Q -8 -172 -4 -166 M -2 -167 Q 1 -175 5 -167 M 7 -164 Q 11 -170 14 -162',
-  }));
-  inner.appendChild(s('circle', { class: 'eye', cx: -7, cy: -152, r: 2 }));
-  inner.appendChild(s('circle', { class: 'eye', cx: 7, cy: -152, r: 2 }));
-  inner.appendChild(s('path', {
-    class: 'ink mouth mouth-closed', d: 'M -7 -138 Q 0 -133.5 7 -138',
-  }));
-  inner.appendChild(s('ellipse', {
-    class: 'mouth mouth-open', cx: 0, cy: -137, rx: 5.4, ry: 7,
-  }));
+  if (!poses) {
+    // 頭
+    inner.appendChild(s('circle', { class: 'head', cx: 0, cy: -148, r: 20 }));
+    inner.appendChild(s('path', {
+      class: 'ink hair',
+      d: 'M -11 -165 Q -8 -172 -4 -166 M -2 -167 Q 1 -175 5 -167 M 7 -164 Q 11 -170 14 -162',
+    }));
+    inner.appendChild(s('circle', { class: 'eye', cx: -7, cy: -152, r: 2 }));
+    inner.appendChild(s('circle', { class: 'eye', cx: 7, cy: -152, r: 2 }));
+    inner.appendChild(s('path', {
+      class: 'ink mouth mouth-closed', d: 'M -7 -138 Q 0 -133.5 7 -138',
+    }));
+    inner.appendChild(s('ellipse', {
+      class: 'mouth mouth-open', cx: 0, cy: -137, rx: 5.4, ry: 7,
+    }));
+  }
 
   // 文字標籤（與圖案徽章雙重辨識）
   const chip = s('g', { class: 'name-chip' });
-  chip.appendChild(s('rect', { x: -21, y: -203, width: 42, height: 32, rx: 10 }));
-  chip.appendChild(s('text', { x: 0, y: -180, class: 'name-chip-text', text: label }));
+  chip.appendChild(s('rect', {
+    x: anchor.chip.x - 21, y: anchor.chip.y - 18, width: 42, height: 32, rx: 10,
+  }));
+  chip.appendChild(s('text', {
+    x: anchor.chip.x, y: anchor.chip.y + 5, class: 'name-chip-text', text: label,
+  }));
   inner.appendChild(chip);
 
   // 玩家畫的工作證（只有主角有）
@@ -177,9 +234,13 @@ export function createPerson({
   if (withCard) {
     card = s('g', { class: 'id-card' });
     card.appendChild(s('path', {
-      class: 'ink lanyard', d: 'M -4 -127 L -41 -93 M 4 -127 L -19 -93',
+      class: 'ink lanyard',
+      d: `M -4 -127 L ${anchor.card.x - 11} ${anchor.card.y - 14} `
+        + `M 4 -127 L ${anchor.card.x + 11} ${anchor.card.y - 14}`,
     }));
-    const holder = s('g', { transform: 'translate(-30 -79) rotate(-8)' });
+    const holder = s('g', {
+      transform: `translate(${anchor.card.x} ${anchor.card.y}) rotate(${anchor.card.rot})`,
+    });
     holder.appendChild(s('rect', {
       class: 'id-card-bg', x: -18, y: -14, width: 36, height: 28, rx: 3,
     }));
@@ -196,16 +257,33 @@ export function createPerson({
   }
 
   // 休止符提示
-  const rest = s('g', { class: 'rest-mark', transform: 'translate(34 -160)' });
+  const rest = s('g', {
+    class: 'rest-mark',
+    transform: `translate(${anchor.rest.x} ${anchor.rest.y})`,
+  });
   rest.appendChild(s('circle', { class: 'rest-bg', cx: 0, cy: 0, r: 15 }));
   rest.appendChild(restGlyph());
   inner.appendChild(rest);
 
-  // 舉牌（結尾）
+  // 舉牌（結尾）。字母一律是 SVG 文字，不會拼錯，也不必為了換字重畫圖。
   const sign = s('g', { class: 'letter-sign' });
-  sign.appendChild(s('rect', {
-    class: 'letter-sign-bg', x: -31, y: -252, width: 62, height: 50, rx: 5,
-  }));
+  const board = art && art.signBoard();
+  if (board) {
+    sign.appendChild(s('image', {
+      class: 'letter-sign-art',
+      href: board,
+      x: SIGN_BOX.x,
+      y: SIGN_BOX.y,
+      width: SIGN_BOX.w,
+      height: SIGN_BOX.h,
+      preserveAspectRatio: 'none',
+    }));
+  } else {
+    sign.appendChild(s('rect', {
+      class: 'letter-sign-bg',
+      x: SIGN_BOX.x, y: SIGN_BOX.y, width: SIGN_BOX.w, height: SIGN_BOX.h, rx: 5,
+    }));
+  }
   sign.appendChild(s('text', { class: 'letter-sign-text', x: 0, y: -216, text: letter || '' }));
   inner.appendChild(sign);
 
@@ -219,10 +297,50 @@ export function createPerson({
 }
 
 /* ---------------- 指揮 ---------------- */
-export function createConductor() {
+export function createConductor(art = null) {
   const g = s('g', { class: 'conductor' });
   const inner = s('g', { class: 'conductor-inner' });
   g.appendChild(inner);
+
+  const drawn = art ? art.conductor() : null;
+  const batonArm = s('g', { class: 'baton-arm' });
+
+  if (drawn && drawn.body) {
+    g.classList.add('drawn');
+    inner.appendChild(s('image', {
+      class: 'conductor-art conductor-art-plain',
+      href: drawn.body,
+      x: CONDUCTOR_BOX.x,
+      y: CONDUCTOR_BOX.y,
+      width: CONDUCTOR_BOX.w,
+      height: CONDUCTOR_BOX.h,
+      preserveAspectRatio: 'xMidYMax meet',
+    }));
+    if (drawn.bodySmile) {
+      inner.appendChild(s('image', {
+        class: 'conductor-art conductor-art-smile',
+        href: drawn.bodySmile,
+        x: CONDUCTOR_BOX.x,
+        y: CONDUCTOR_BOX.y,
+        width: CONDUCTOR_BOX.w,
+        height: CONDUCTOR_BOX.h,
+        preserveAspectRatio: 'xMidYMax meet',
+      }));
+    }
+    if (drawn.arm) {
+      batonArm.appendChild(s('image', {
+        href: drawn.arm,
+        x: CONDUCTOR_ARM_BOX.x,
+        y: CONDUCTOR_ARM_BOX.y,
+        width: CONDUCTOR_ARM_BOX.w,
+        height: CONDUCTOR_ARM_BOX.h,
+        preserveAspectRatio: 'xMidYMid meet',
+      }));
+    }
+    inner.appendChild(batonArm);
+    // hasSmile 必須正確：沒畫微笑版時不能切換，否則身體會整個消失
+    return { g, parts: { inner, batonArm, mouth: null, hasSmile: Boolean(drawn.bodySmile) } };
+  }
 
   inner.appendChild(s('path', {
     class: 'ink leg', d: 'M -8 0 L -4 -58 M 8 0 L 4 -58 M -13 0 L -5 0 M 5 0 L 13 0',
@@ -236,7 +354,6 @@ export function createConductor() {
   }));
 
   // 右手＋指揮棒，繞肩膀旋轉
-  const batonArm = s('g', { class: 'baton-arm' });
   batonArm.appendChild(s('path', {
     class: 'ink', d: 'M 13 -108 L 33 -128',
   }));
@@ -258,6 +375,9 @@ export function createConductor() {
 
   return { g, parts: { inner, batonArm, mouth: inner.querySelector('.conductor-mouth') } };
 }
+
+/** 指揮棒的旋轉中心（身體與手臂都用這個點對齊） */
+export const BATON_PIVOT = CONDUCTOR_ARM_PIVOT;
 
 /** 主角手上的樂譜 */
 export function sheetMusic() {

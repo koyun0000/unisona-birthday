@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1400" viewBox="0 0 2000 1400">
+  <title>舞台背景</title>
+  <rect width="2000" height="1400" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="1999" height="1399" fill="none" stroke="rgba(47,42,38,0.28)" stroke-width="2"/>
+  <line x1="1000" y1="0" x2="1000" y2="1400" stroke="#c9742c" stroke-width="2" stroke-dasharray="8 8" opacity="0.5"/>
+  <line x1="0" y1="700" x2="2000" y2="700" stroke="#c9742c" stroke-width="2" stroke-dasharray="8 8" opacity="0.5"/>
+  <text x="14" y="34" font-family="sans-serif" font-size="26" fill="#c9742c" text-anchor="start">舞台背景</text>
+  <text x="14" y="64" font-family="sans-serif" font-size="18" fill="rgba(47,42,38,0.28)" text-anchor="start">只畫背牆與地板。</text>
+  <text x="14" y="90" font-family="sans-serif" font-size="18" fill="rgba(47,42,38,0.28)" text-anchor="start">人、譜架、指揮都由程式疊上去。</text>
+  <text x="14" y="116" font-family="sans-serif" font-size="18" fill="rgba(47,42,38,0.28)" text-anchor="start">地板與牆的交界建議在高度的 55% 附近。</text>
+  <text x="1988" y="1386" font-family="sans-serif" font-size="15" fill="rgba(47,42,38,0.28)" text-anchor="end">2000 x 1400 px</text>
+</svg>

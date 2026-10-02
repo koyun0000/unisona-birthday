@@ -183,6 +183,26 @@ Actions 會失敗，網站不會被覆蓋。**
 改完 `CHARACTERS` 或 `CLUES` 之後一定要重跑 `node tools/verify-puzzle.mjs`，
 確認線索仍然只有一組解。
 
+## 換成手繪
+
+程式有一層圖片插槽：`src/config/show.js` 的 `ART` 填了檔名就用你的圖，
+沒填就用程式畫的 SVG。可以一個角色、一個場景慢慢換，中途都是完整可玩的。
+
+```bash
+python tools/make-templates.py   # 在 templates/ 產生 11 個繪圖範本
+```
+
+範本上有中心線、腳底線、徽章與名牌的保留位置，照著畫就會對齊。
+完整的檔名、尺寸、對齊規則與實測結果見 `ASSETS.md`。
+
+重點規則：
+
+- 每位團員三張：`normal`（閉嘴手放下）、`sing`（張嘴）、`sign`（雙手舉過頭**＋張嘴**）
+- 三張的身體要畫在同一位置，因為遊戲是硬切換圖
+- 指揮的右手要單獨一張，才能跟著節拍擺動
+- 字母、名牌、徽章圓框都由程式疊上去，圖裡請留白
+- 位置對不上時改 `ART.anchors` 微調，不必重畫
+
 ### 可用的圖案徽章
 
 `src/art/figures.js` 的 `SYMBOLS`：`star`、`moon`、`leaf`、`wave`、`mount`、`grid`、`heart`。
@@ -244,13 +264,17 @@ unisona-birthday/
 │   │   ├── pad.js           繪圖區（滑鼠、觸控、觸控筆）
 │   │   └── strokes.js       筆畫資料、縮放、轉成圖像
 │   ├── art/
+│   │   ├── layout.js        手繪圖片的版面規格（範本與遊戲共用）
+│   │   ├── art-source.js    圖片插槽：有圖用圖、沒圖用 SVG
 │   │   ├── figures.js       小人、指揮、徽章圖案（純 SVG）
 │   │   ├── door.js          後台入口場景
 │   │   └── stage.js         舞台：七人、七座譜架、指揮、舉牌、結尾字
 │   ├── puzzle/solver.js     線索判定與排列枚舉
 │   └── scenes/              五個場景
+├── templates/               繪圖範本（由 make-templates.py 產生）
 └── tools/
     ├── serve.py             本機預覽（模擬 Pages 子路徑，會抓出絕對路徑問題）
+    ├── make-templates.py    產生手繪範本
     └── verify-puzzle.mjs    設定檔驗證
 ```
 

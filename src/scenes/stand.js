@@ -1,4 +1,4 @@
-import { h } from '../core/dom.js';
+﻿import { h } from '../core/dom.js';
 import { createPad, standGuide } from '../draw/pad.js';
 import { toDataURL } from '../draw/strokes.js';
 import { Stage } from '../art/stage.js';
@@ -13,6 +13,7 @@ export function standScene(app) {
     order: app.cfg.INITIAL_ORDER,
     signLetters: app.cfg.FINALE.signLetters,
     cardHref: app.state.badgeHref,
+    art: app.art,
   });
   app.stage = stage;
   stage.disableDrag();

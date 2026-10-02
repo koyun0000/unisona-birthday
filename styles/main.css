@@ -338,6 +338,30 @@ body {
 .person.selected .name-chip rect { fill: var(--accent); }
 .person.selected .name-chip-text { fill: #fff8ec; }
 
+/* 手繪三張全身圖的切換。
+   結尾那一刻是「邊唱邊舉牌」，所以 holding-sign 的優先度最高，
+   sign.png 本身就要畫成雙手舉起＋張嘴。 */
+/* 姿勢之間是硬切，不做淡入淡出：
+   嘴巴跟著節拍開合時，硬切比較俐落，也不會出現兩張圖疊在一起的殘影。 */
+.pose { opacity: 0; }
+.person .pose-normal { opacity: 1; }
+.person.sing .pose-normal { opacity: 0; }
+.person.sing .pose-sing { opacity: 1; }
+.person.holding-sign .pose-normal,
+.person.holding-sign .pose-sing { opacity: 0; }
+.person.holding-sign .pose-sign { opacity: 1; }
+
+/* 身體換成圖片之後，SVG 的嘴與手臂就不存在了，也不需要這些規則 */
+.person.drawn .mouth,
+.person.drawn .arms { display: none; }
+
+.letter-sign-art { pointer-events: none; }
+
+.conductor-art-smile { opacity: 0; transition: opacity 0.3s ease; }
+.conductor.smiling .conductor-art-smile { opacity: 1; }
+.conductor.smiling .conductor-art-plain { opacity: 0; }
+.conductor-art-plain { transition: opacity 0.3s ease; }
+
 .person.resting .rest-mark { opacity: 1; transform: translateY(-4px); }
 .person.resting .person-inner { transform: translateY(-3px); }
 

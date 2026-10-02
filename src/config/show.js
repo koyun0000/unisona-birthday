@@ -252,6 +252,78 @@ export const AUDIO = {
 };
 
 /* ------------------------------------------------------------------ *
+ * 手繪圖片插槽。
+ *
+ * 留白（沒填的項目）就用程式畫的 SVG，所以可以一個角色一個角色慢慢換，
+ * 中途任何時候都是完整可玩的。只要填了檔名就會改用你的圖。
+ *
+ * 尺寸、對齊方式、繪圖範本見 ASSETS.md 與 tools/make-templates.py。
+ * 所有路徑都是相對路徑，部署到 GitHub Pages 子路徑才不會 404。
+ *
+ * 注意：填了卻不存在的檔名，瀏覽器會留下 404 錯誤訊息（遊戲仍可玩）。
+ * 還沒畫好的請保持註解。
+ * ------------------------------------------------------------------ */
+export const ART = {
+  basePath: './assets/art/',
+
+  /**
+   * 每位團員三張全身圖（去背 PNG，480 × 840）：
+   *   normal 平常站著、閉著嘴、手自然放下
+   *   sing   張嘴在唱、手放下
+   *   sign   雙手舉過頭 ＋ 張嘴在唱（結尾舉牌時是邊唱邊舉）
+   */
+  persons: {
+    // star:  { normal: 'star-normal.png',  sing: 'star-sing.png',  sign: 'star-sign.png' },
+    // mount: { normal: 'mount-normal.png', sing: 'mount-sing.png', sign: 'mount-sign.png' },
+    // leaf:  { normal: 'leaf-normal.png',  sing: 'leaf-sing.png',  sign: 'leaf-sign.png' },
+    // moon:  { normal: 'moon-normal.png',  sing: 'moon-sing.png',  sign: 'moon-sign.png' },
+    // heart: { normal: 'heart-normal.png', sing: 'heart-sing.png', sign: 'heart-sign.png' },
+    // wave:  { normal: 'wave-normal.png',  sing: 'wave-sing.png',  sign: 'wave-sign.png' },
+    // grid:  { normal: 'grid-normal.png',  sing: 'grid-sing.png',  sign: 'grid-sign.png' },
+  },
+
+  /** 七個圖案徽章（去背 PNG，128 × 128，置中） */
+  symbols: {
+    // star: 'symbol-star.png',
+    // moon: 'symbol-moon.png',
+    // leaf: 'symbol-leaf.png',
+    // wave: 'symbol-wave.png',
+    // mount: 'symbol-mount.png',
+    // grid: 'symbol-grid.png',
+    // heart: 'symbol-heart.png',
+  },
+
+  /** 指揮。右手要單獨一張，才能跟著節拍轉 */
+  conductor: {
+    // body: 'conductor-body.png',             // 360 × 585，右手不要畫
+    // bodySmile: 'conductor-body-smile.png',  // 同上，微笑版（可省略）
+    // arm: 'conductor-arm.png',               // 360 × 330，右手＋指揮棒
+  },
+
+  /** 舞台與後台入口的背景 */
+  scenes: {
+    // stage: 'stage-backdrop.png',   // 2000 × 1400
+    // door: 'door-backdrop.png',     // 2000 × 760，門與感應器不要畫進去
+    // doorLeaf: 'door-leaf.png',     // 612 × 738，會往右滑開
+    // scanner: 'scanner.png',        // 150 × 246，指示燈不要畫，由程式疊上去
+  },
+
+  /** 結尾的牌子。字母由程式用文字畫上去，不會拼錯，所以請畫空白牌面 */
+  sign: {
+    // board: 'sign-board.png',       // 186 × 150
+  },
+
+  /**
+   * 手繪的身體比例跟 SVG 小人不一定一樣，
+   * 這裡可以逐一微調胸前徽章、頭上名牌、工作證的位置。
+   * 省略就用 src/art/layout.js 的 DEFAULT_ANCHORS。
+   */
+  anchors: {
+    // star: { emblem: { x: 2, y: -108, r: 17 }, chip: { x: 0, y: -192 } },
+  },
+};
+
+/* ------------------------------------------------------------------ *
  * 文案（繁體中文，不使用 emoji）
  * ------------------------------------------------------------------ */
 export const TEXTS = {

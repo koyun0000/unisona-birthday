@@ -25,7 +25,7 @@ export function rehearsalScene(app) {
 
   /* ---------------- 便條 ---------------- */
   const clueCards = CLUES.map((clue) => {
-    const icons = h('div', { class: 'clue-icons' }, clue.icons.map((k) => symbolBadgeSvg(k, 30)));
+    const icons = h('div', { class: 'clue-icons' }, clue.icons.map((k) => symbolBadgeSvg(k, 30, app.art)));
     const card = h('li', { class: 'clue' }, [
       icons,
       h('p', { class: 'clue-text', text: clue.text }),
@@ -175,7 +175,7 @@ export function rehearsalScene(app) {
         'aria-pressed': String(selected === id),
         disabled: solved,
       });
-      btn.appendChild(symbolBadgeSvg(ch.symbol, 26));
+      btn.appendChild(symbolBadgeSvg(ch.symbol, 26, app.art));
       btn.appendChild(h('span', { class: 'slot-label', text: ch.label }));
       btn.addEventListener('click', () => handleTap(id));
       return h('li', {}, [btn]);

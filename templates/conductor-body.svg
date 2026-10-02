@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="585" viewBox="0 0 360 585">
+  <title>UNISONA 指揮範本（身體）</title>
+  <rect width="360" height="585" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="359" height="584" fill="none" stroke="rgba(47,42,38,0.28)" stroke-width="2"/>
+  <line x1="180" y1="0" x2="180" y2="585" stroke="#c9742c" stroke-width="2" stroke-dasharray="8 8" opacity="0.6"/>
+  <line x1="0" y1="525" x2="360" y2="525" stroke="#c9742c" stroke-width="3"/>
+  <text x="12" y="513" font-family="sans-serif" font-size="20" fill="#c9742c" text-anchor="start">腳底線</text>
+  <circle cx="219" cy="201" r="10" fill="none" stroke="#c9742c" stroke-width="3"/>
+  <line x1="201" y1="201" x2="237" y2="201" stroke="#c9742c" stroke-width="2"/>
+  <line x1="219" y1="183" x2="219" y2="219" stroke="#c9742c" stroke-width="2"/>
+  <text x="243" y="207" font-family="sans-serif" font-size="17" fill="#c9742c" text-anchor="start">右肩（右手不要畫在這張）</text>
+  <text x="12" y="34" font-family="sans-serif" font-size="28" fill="#c9742c" text-anchor="start">指揮・身體</text>
+  <text x="348" y="569" font-family="sans-serif" font-size="15" fill="rgba(47,42,38,0.28)" text-anchor="end">360 x 585 px，去背 PNG</text>
+</svg>

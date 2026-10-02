@@ -1,8 +1,9 @@
-import * as cfg from './config/show.js';
+﻿import * as cfg from './config/show.js';
 import { AudioEngine } from './core/audio.js';
 import { Clock, createSeq } from './core/clock.js';
 import { h, button, clear } from './core/dom.js';
 import { verifyPuzzle } from './puzzle/solver.js';
+import { createArtSource } from './art/art-source.js';
 import { introScene } from './scenes/intro.js';
 import { badgeScene } from './scenes/badge.js';
 import { standScene } from './scenes/stand.js';
@@ -25,10 +26,12 @@ const resumeButton = document.getElementById('resume-button');
 document.getElementById('resume-text').textContent = cfg.TEXTS.resume;
 
 const audio = new AudioEngine(cfg.AUDIO);
+const art = createArtSource(cfg.ART);
 
 const app = {
   cfg,
   audio,
+  art,
   clock: new Clock(audio),
   seq: createSeq(),
   stage: null,
@@ -157,6 +160,8 @@ if (cfg.FINALE.signLetters.join('') !== 'UNISONA') {
 window.__unisona = {
   check,
   audio,
+  art,
+  artSummary: () => art.summary(),
   scene: () => app.current,
   stage: () => app.stage,
   audioTime: () => audio.time,

@@ -1,4 +1,4 @@
-import { h } from '../core/dom.js';
+﻿import { h } from '../core/dom.js';
 import { createDoorScene } from '../art/door.js';
 import { createPad, badgeGuide } from '../draw/pad.js';
 import { toDataURL } from '../draw/strokes.js';
@@ -7,7 +7,7 @@ import { toDataURL } from '../draw/strokes.js';
 export function badgeScene(app) {
   const t = app.cfg.TEXTS.badge;
   const heroChar = app.cfg.CHARACTERS.find((c) => c.id === app.cfg.HERO_ID);
-  const door = createDoorScene({ heroChar });
+  const door = createDoorScene({ heroChar, art: app.art });
   door.moveHero(330);
 
   const prompt = h('p', { class: 'prompt', text: t.prompt });

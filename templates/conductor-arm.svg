@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="330" viewBox="0 0 360 330">
+  <title>UNISONA 指揮範本（右手與指揮棒）</title>
+  <rect width="360" height="330" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="359" height="329" fill="none" stroke="rgba(47,42,38,0.28)" stroke-width="2"/>
+  <circle cx="99" cy="186" r="12" fill="none" stroke="#c9742c" stroke-width="3"/>
+  <line x1="77" y1="186" x2="121" y2="186" stroke="#c9742c" stroke-width="2"/>
+  <line x1="99" y1="164" x2="99" y2="208" stroke="#c9742c" stroke-width="2"/>
+  <text x="127" y="176" font-family="sans-serif" font-size="18" fill="#c9742c" text-anchor="start">旋轉中心＝肩膀</text>
+  <text x="127" y="200" font-family="sans-serif" font-size="16" fill="rgba(47,42,38,0.28)" text-anchor="start">手從這裡往右上方伸出</text>
+  <text x="12" y="30" font-family="sans-serif" font-size="26" fill="#c9742c" text-anchor="start">指揮・右手＋指揮棒</text>
+  <text x="348" y="316" font-family="sans-serif" font-size="15" fill="rgba(47,42,38,0.28)" text-anchor="end">360 x 330 px，去背 PNG</text>
+</svg>

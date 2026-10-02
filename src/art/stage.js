@@ -4,6 +4,7 @@
  */
 import { s, clientToSvg } from '../core/dom.js';
 import { createPerson, createConductor, sheetMusic, noteGlyph } from './figures.js';
+import { STAGE_VIEW, CONDUCTOR_ARM_PIVOT } from './layout.js';
 
 export const SLOT_X = [100, 233, 367, 500, 633, 767, 900];
 export const slotFootY = (i) => 400 + 20 * Math.abs(i - 3);
@@ -20,7 +21,8 @@ export class Stage {
    * @param {string[]} opts.signLetters 七張牌的字母
    * @param {string|null} opts.cardHref 玩家畫的工作證 dataURL
    */
-  constructor({ characters, heroId, order, signLetters, cardHref }) {
+  constructor({ characters, heroId, order, signLetters, cardHref, art = null }) {
+    this.art = art;
     this.characters = characters;
     this.heroId = heroId;
     this.order = order.slice();
@@ -37,7 +39,7 @@ export class Stage {
     });
     this.el = svg;
 
-    svg.appendChild(this.buildBackdrop());
+    svg.appendChild(this.buildBackdrop(art));
 
     this.personLayer = s('g', { class: 'person-layer' });
     this.standLayer = s('g', { class: 'stand-layer' });
@@ -55,6 +57,7 @@ export class Stage {
     characters.forEach((ch) => {
       const slot = this.order.indexOf(ch.id);
       const { g, parts } = createPerson({
+        art,
         id: ch.id,
         label: ch.label,
         symbol: ch.symbol,
@@ -71,7 +74,7 @@ export class Stage {
     this.signLetters = signLetters;
 
     // 指揮
-    const conductor = createConductor();
+    const conductor = createConductor(art);
     this.conductor = conductor;
     conductor.g.classList.add('hidden');
     conductor.g.setAttribute('transform', 'translate(500 668)');
@@ -85,7 +88,7 @@ export class Stage {
     this.applyOrder(false);
   }
 
-  buildBackdrop() {
+  buildBackdrop(art) {
     const g = s('g', { class: 'backdrop', 'aria-hidden': 'true' });
 
     const defs = s('defs');
@@ -105,9 +108,22 @@ export class Stage {
     defs.appendChild(sel);
     g.appendChild(defs);
 
-    g.appendChild(s('rect', { class: 'wall', x: 0, y: 0, width: 1000, height: 382 }));
-    g.appendChild(s('path', { class: 'floor', d: 'M 0 382 L 1000 382 L 1000 700 L 0 700 Z' }));
-    g.appendChild(s('path', { class: 'floor-line', d: 'M 0 382 L 1000 382' }));
+    const painted = art && art.scene('stage');
+    if (painted) {
+      g.appendChild(s('image', {
+        class: 'stage-art',
+        href: painted,
+        x: STAGE_VIEW.x,
+        y: STAGE_VIEW.y,
+        width: STAGE_VIEW.w,
+        height: STAGE_VIEW.h,
+        preserveAspectRatio: 'none',
+      }));
+    } else {
+      g.appendChild(s('rect', { class: 'wall', x: 0, y: 0, width: 1000, height: 382 }));
+      g.appendChild(s('path', { class: 'floor', d: 'M 0 382 L 1000 382 L 1000 700 L 0 700 Z' }));
+      g.appendChild(s('path', { class: 'floor-line', d: 'M 0 382 L 1000 382' }));
+    }
     // 暖光（成功之後打開）
     g.appendChild(s('ellipse', { class: 'warm-glow', cx: 500, cy: 400, rx: 640, ry: 360 }));
     return g;
@@ -274,12 +290,23 @@ export class Stage {
 
   conductorSmile(on) {
     const mouth = this.conductor.parts.mouth;
-    mouth.setAttribute('d', on ? 'M -7 -126 Q 0 -118 7 -126' : 'M -6 -125 Q 0 -121.5 6 -125');
+    if (mouth) {
+      mouth.setAttribute('d', on ? 'M -7 -126 Q 0 -118 7 -126' : 'M -6 -125 Q 0 -121.5 6 -125');
+      return;
+    }
+    // 手繪版：切換成微笑那張圖。沒畫微笑版就什麼都不做，
+    // 否則 .smiling 會把原本那張也藏起來，指揮就不見了。
+    if (!this.conductor.parts.hasSmile) return;
+    this.conductor.g.classList.toggle('smiling', on);
   }
 
   /** 指揮棒角度，由時間軸驅動，與節拍一致 */
   setBatonAngle(deg) {
-    this.conductor.parts.batonArm.setAttribute('transform', `rotate(${deg.toFixed(2)} 13 -108)`);
+    const p = CONDUCTOR_ARM_PIVOT;
+    this.conductor.parts.batonArm.setAttribute(
+      'transform',
+      `rotate(${deg.toFixed(2)} ${p.x} ${p.y})`,
+    );
   }
 
   /* ---------------- 結尾 ---------------- */

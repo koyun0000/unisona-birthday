@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="246" viewBox="0 0 150 246">
+  <title>感應器</title>
+  <rect width="150" height="246" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="149" height="245" fill="none" stroke="rgba(47,42,38,0.28)" stroke-width="2"/>
+  <line x1="75" y1="0" x2="75" y2="246" stroke="#c9742c" stroke-width="2" stroke-dasharray="8 8" opacity="0.5"/>
+  <line x1="0" y1="123" x2="150" y2="123" stroke="#c9742c" stroke-width="2" stroke-dasharray="8 8" opacity="0.5"/>
+  <text x="14" y="34" font-family="sans-serif" font-size="26" fill="#c9742c" text-anchor="start">感應器</text>
+  <text x="14" y="64" font-family="sans-serif" font-size="18" fill="rgba(47,42,38,0.28)" text-anchor="start">指示燈不要畫，由程式疊上去變色。</text>
+  <text x="138" y="232" font-family="sans-serif" font-size="15" fill="rgba(47,42,38,0.28)" text-anchor="end">150 x 246 px</text>
+</svg>
