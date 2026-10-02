@@ -26,21 +26,44 @@
 
 ---
 
-## 在本機跑起來
+## 在本機跑起來（上傳前先在 127.0.0.1 測）
 
 因為使用 ES Modules，不能直接用 `file://` 開啟，需要一個本機伺服器。
 
 ```bash
-# Python（任何版本 3.x）
 cd unisona-birthday
-python -m http.server 8080
-# 瀏覽器開 http://localhost:8080/
-
-# 或 Node
-npx serve .
+python tools/serve.py
+# 自動開啟 http://127.0.0.1:8080/unisona-birthday/
 ```
 
-沒有建置步驟。改完原始碼重新整理瀏覽器即可。
+這支伺服器**刻意模擬 GitHub Pages 的子路徑**，網站掛在 `/unisona-birthday/` 底下，
+而且把子路徑之外的請求一律回 404。
+
+這很重要：如果程式裡有任何以 `/` 開頭的絕對路徑，
+用一般的 `python -m http.server` 在本機看起來都正常，上傳之後才會壞。
+用這支伺服器就能在本機先抓出來——開發者工具的 Console 或 Network 只要出現 404，
+代表上傳後一定會 404。
+
+常用參數：
+
+```bash
+python tools/serve.py --port 9000      # 換連接埠
+python tools/serve.py --base my-repo   # 換成你實際的 repository 名稱
+python tools/serve.py --root           # 不模擬子路徑（掛在根目錄）
+python tools/serve.py --no-open        # 不自動開瀏覽器
+```
+
+沒有建置步驟。改完原始碼重新整理瀏覽器即可（伺服器已關閉快取）。
+
+### 上傳前的本機檢查清單
+
+1. `python tools/serve.py`，玩完整一輪（約兩三分鐘）。
+2. 開發者工具 Console：**不應有任何紅字**。
+3. 開發者工具 Network：**不應有任何 404**。
+4. 手機尺寸也看一次（開發者工具的裝置模擬，或同網段用手機連）。
+5. `node tools/verify-puzzle.mjs`（若本機有 Node；沒有也沒關係，推上去 CI 會跑）。
+
+確認沒問題再 `git push`。
 
 ## 驗證設定檔
 
@@ -54,57 +77,62 @@ node tools/verify-puzzle.mjs
 
 ---
 
-## 部署到 GitHub Pages
+## 部署到 GitHub Pages：push 就上線
 
-這是靜態網站，沒有建置步驟，所以用「從分支部署」最簡單。
+這個資料夾本身已經是一個 git repository，而且附了
+`.github/workflows/pages.yml`，所以**推上 main 分支就會自動驗證並部署**。
 
-### 方式一：從分支部署（建議）
+### 第一次設定（只做一次）
 
-1. 把 `unisona-birthday/` 底下的檔案推上 GitHub repository。
-   - 若把整個資料夾當成 repository 根目錄，網址會是
-     `https://<帳號>.github.io/<repo>/`
-   - 若放在既有 repository 的子資料夾，請把該資料夾設為 Pages 來源，或移到 `docs/`。
-2. Repository → **Settings → Pages**
-   - Source：**Deploy from a branch**
-   - Branch：`main`，資料夾 `/ (root)` 或 `/docs`
-3. 等一兩分鐘，開 `https://<帳號>.github.io/<repo>/`。
+1. 在 GitHub 上建立一個空的 repository（不要勾選 README / .gitignore，
+   否則會跟本機的初始 commit 衝突）。
+2. 在 `unisona-birthday/` 底下接上 remote 並推上去：
 
-`.nojekyll` 已經包含在內，Jekyll 不會處理或跳過任何檔案。
+   ```bash
+   git remote add origin https://github.com/<帳號>/<repo>.git
+   git push -u origin main
+   ```
 
-### 方式二：GitHub Actions
+3. Repository → **Settings → Pages** → Source 選 **GitHub Actions**。
+4. 回到 **Actions** 分頁看跑完，網址會是 `https://<帳號>.github.io/<repo>/`。
 
-若偏好用 Actions，建立 `.github/workflows/pages.yml`：
+### 之後的每一次
 
-```yaml
-name: Deploy to GitHub Pages
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: pages
-  cancel-in-progress: true
-jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .          # 若放在子資料夾，改成 ./unisona-birthday
-      - id: deployment
-        uses: actions/deploy-pages@v4
+```bash
+python tools/serve.py        # 先在 127.0.0.1 測
+git add -A
+git commit -m "更新文案"
+git push                     # 自動驗證 → 自動部署
 ```
 
-然後在 **Settings → Pages** 把 Source 設成 **GitHub Actions**。
+### workflow 做了什麼
+
+`verify` 這個 job 會先擋住有問題的內容，通過才會部署：
+
+- `node tools/verify-puzzle.mjs`：枚舉 5040 種排列，確認線索只有一組解，
+  並檢查角色、排練旋律、演出段落、延長音、舉牌時間、結尾牌面。
+- 掃描所有 HTML / CSS / JS，確認**沒有以 `/` 開頭的絕對路徑**
+  （子路徑部署會 404 的最常見原因）。
+
+Pull request 只會跑驗證，不會部署。
+
+這表示：**如果你改壞了便條導致謎題有兩組解，或打錯 UNISONA，
+Actions 會失敗，網站不會被覆蓋。**
+
+### 放在別的 repository 的子資料夾
+
+如果你不想讓這個資料夾單獨當一個 repository，而是放進既有 repo 的子資料夾：
+
+- 把 `.github/workflows/pages.yml` 移到該 repo 的根目錄 `.github/workflows/`
+- 把 workflow 裡的 `path: .` 改成 `path: ./unisona-birthday`
+- `node tools/verify-puzzle.mjs` 改成 `node unisona-birthday/tools/verify-puzzle.mjs`
+
+### 不用 Actions 的做法
+
+也可以直接從分支部署：**Settings → Pages** → Source 選
+**Deploy from a branch** → `main` / `/ (root)`。
+這樣就不會跑驗證，但部署一樣會成功。
+`.nojekyll` 已經包含在內，Jekyll 不會處理或跳過任何檔案。
 
 ### 子路徑注意事項
 
@@ -199,6 +227,8 @@ unisona-birthday/
 ├── index.html
 ├── favicon.svg
 ├── .nojekyll
+├── .gitignore / .gitattributes
+├── .github/workflows/pages.yml   push 到 main → 驗證 → 部署
 ├── README.md
 ├── ASSETS.md
 ├── styles/
@@ -219,7 +249,9 @@ unisona-birthday/
 │   │   └── stage.js         舞台：七人、七座譜架、指揮、舉牌、結尾字
 │   ├── puzzle/solver.js     線索判定與排列枚舉
 │   └── scenes/              五個場景
-└── tools/verify-puzzle.mjs  設定檔驗證
+└── tools/
+    ├── serve.py             本機預覽（模擬 Pages 子路徑，會抓出絕對路徑問題）
+    └── verify-puzzle.mjs    設定檔驗證
 ```
 
 ## 技術重點
