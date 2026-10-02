@@ -1,0 +1,4 @@
+﻿手繪圖片放這個資料夾。
+檔名與尺寸見 templates\檔名清單.md
+畫好一張，就到 src\config\show.js 的 ART 把對應那行取消註解。
+
