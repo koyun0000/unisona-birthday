@@ -320,7 +320,7 @@ export const ART = {
    * 去背的 PNG 或 SVG 都可以；PNG 建議高度 160px 以上。
    * 結尾那七張 U-N-I-S-O-N-A 牌子不會換成 logo，那是七個人各舉一個字母拼出來的。
    */
-  logo: null,
+  logo: { file: 'logo.png', alt: 'UNISONA', height: 22 },
   // logo: { file: 'logo.png', alt: 'UNISONA', height: 22 },
 
   /**

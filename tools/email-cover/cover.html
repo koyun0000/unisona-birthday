@@ -44,7 +44,10 @@
   </defs>
 
   <rect width="600" height="380" fill="var(--paper)"/>
-  <text class="brand" x="34" y="46">UNISONA</text>
+  <!-- 社團 logo。找不到檔案時 onerror 會換回文字，不會變成破圖 -->
+  <image id="brand-logo" href="../../assets/logo.png" x="30" y="22" height="30"
+         preserveAspectRatio="xMinYMid meet"/>
+  <text class="brand" id="brand-text" x="34" y="46" opacity="0">UNISONA</text>
 
   <!-- 盒縫溢出的暖光（在盒身之下、盒蓋之上，看起來像從裡面透出來） -->
   <ellipse id="glow" cx="300" cy="196" rx="190" ry="104" fill="url(#spill)" opacity="0"/>
@@ -97,6 +100,13 @@
 
   const ease = (x) => x * x * (3 - 2 * x);
   const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+  // 沒有 logo 檔就退回文字
+  const brandLogo = document.getElementById('brand-logo');
+  brandLogo.addEventListener('error', () => {
+    brandLogo.setAttribute('opacity', '0');
+    document.getElementById('brand-text').setAttribute('opacity', '1');
+  });
 
   window.setFrame = function (t) {
     // 前段：盒子用力晃，像裡面有東西想出來。
