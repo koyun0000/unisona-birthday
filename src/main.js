@@ -85,6 +85,7 @@ const app = {
     this.state.frozen = false;
     hideResume();
     this.goto('intro');
+    readOrientation();
   },
 
   refreshHud() {
@@ -120,21 +121,79 @@ if (reduceQuery.matches) {
 }
 app.refreshHud();
 
-/* ---------------- 切到背景分頁時暫停 ---------------- */
-function showResume() {
-  resumeLayer.removeAttribute('hidden');
-  resumeButton.focus({ preventScroll: true });
+/* ---------------- 暫停：切到背景分頁，或畫面轉成直向 ---------------- */
+const rotateLayer = document.getElementById('rotate-layer');
+const rotateText = document.getElementById('rotate-text');
+const rotateSub = document.getElementById('rotate-sub');
+const rotateTip = document.getElementById('rotate-tip');
+
+// 兩種會讓遊戲暫停的狀況，分開記錄，才不會互相蓋掉
+const blockers = { hidden: false, portrait: false };
+let tipTimer = 0;
+
+const portraitQuery = window.matchMedia('(orientation: portrait)');
+const coarseQuery = window.matchMedia('(pointer: coarse)');
+const isTouch = () => coarseQuery.matches || navigator.maxTouchPoints > 0;
+
+function refreshBlockers() {
+  const t = cfg.TEXTS.rotate;
+
+  if (blockers.portrait) {
+    rotateText.textContent = isTouch() ? t.touch : t.desktop;
+    rotateSub.textContent = t.sub;
+    rotateLayer.removeAttribute('hidden');
+    if (!tipTimer) {
+      tipTimer = window.setTimeout(() => {
+        rotateTip.textContent = isTouch() ? t.tipTouch : t.tipDesktop;
+        rotateTip.removeAttribute('hidden');
+      }, t.tipDelayMs);
+    }
+  } else {
+    rotateLayer.setAttribute('hidden', 'hidden');
+    rotateTip.setAttribute('hidden', 'hidden');
+    if (tipTimer) { clearTimeout(tipTimer); tipTimer = 0; }
+  }
+
+  // 直向的提示蓋在最上層，這時候不要再疊一個「繼續」按鈕
+  if (blockers.hidden && !blockers.portrait) {
+    resumeLayer.removeAttribute('hidden');
+    resumeButton.focus({ preventScroll: true });
+  } else {
+    resumeLayer.setAttribute('hidden', 'hidden');
+  }
+
+  document.body.classList.toggle('blocked', blockers.hidden || blockers.portrait);
 }
 
 function hideResume() {
-  resumeLayer.setAttribute('hidden', 'hidden');
+  blockers.hidden = false;
+  refreshBlockers();
 }
+
+function setPortrait(on) {
+  if (blockers.portrait === on) return;
+  blockers.portrait = on;
+  refreshBlockers();
+  if (!audio.unlocked || app.state.frozen) return;
+  if (on) audio.suspend();
+  // 轉回橫向就直接接著玩，不用再按一次按鈕
+  else if (!blockers.hidden) audio.resume();
+}
+
+const readOrientation = () => setPortrait(portraitQuery.matches);
+
+if (portraitQuery.addEventListener) portraitQuery.addEventListener('change', readOrientation);
+else portraitQuery.addListener(readOrientation);
+window.addEventListener('resize', readOrientation);
+window.addEventListener('orientationchange', readOrientation);
+readOrientation();
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     if (!audio.unlocked || app.state.frozen) return;
     audio.suspend();
-    showResume();
+    blockers.hidden = true;
+    refreshBlockers();
   }
 });
 

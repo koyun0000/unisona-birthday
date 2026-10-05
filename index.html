@@ -21,6 +21,21 @@
     <p id="caption" aria-live="polite"></p>
   </div>
 
+  <div id="rotate-layer" hidden>
+    <div id="rotate-card">
+      <svg id="rotate-icon" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+        <rect class="rotate-phone" x="44" y="18" width="32" height="56" rx="6"/>
+        <line class="rotate-speaker" x1="54" y1="26" x2="66" y2="26"/>
+        <circle class="rotate-home" cx="60" cy="66" r="2.6"/>
+        <path class="rotate-arrow" d="M26 92 A 38 38 0 0 1 94 92"/>
+        <path class="rotate-arrow-head" d="M88 84 L96 93 L86 98"/>
+      </svg>
+      <p id="rotate-text">請把螢幕轉成橫向</p>
+      <p id="rotate-sub">這個排練只有橫向版本</p>
+      <p id="rotate-tip" hidden>轉了沒反應的話，請先關掉螢幕的旋轉鎖定</p>
+    </div>
+  </div>
+
   <div id="resume-layer" hidden>
     <div id="resume-card">
       <p id="resume-text">排練暫停了。</p>

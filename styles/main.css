@@ -579,6 +579,71 @@ body {
 .finale-controls { opacity: 0; transition: opacity 0.6s ease; }
 .finale-controls.shown { opacity: 1; }
 
+/* ---------------- 直向提示 ----------------
+   網頁沒辦法真的強制轉向，所以直向時蓋一層，擋到使用者轉過來為止。 */
+#rotate-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--paper);
+}
+#rotate-layer[hidden] { display: none; }
+
+#rotate-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 320px;
+}
+
+#rotate-icon { width: 128px; height: 128px; }
+.rotate-phone {
+  fill: #fffdf7;
+  stroke: var(--ink);
+  stroke-width: 4;
+  transform-origin: 60px 46px;
+  animation: turn-phone 2.6s ease-in-out infinite;
+}
+.rotate-speaker { stroke: var(--ink); stroke-width: 3; stroke-linecap: round;
+  transform-origin: 60px 46px; animation: turn-phone 2.6s ease-in-out infinite; }
+.rotate-home { fill: var(--ink);
+  transform-origin: 60px 46px; animation: turn-phone 2.6s ease-in-out infinite; }
+.rotate-arrow, .rotate-arrow-head {
+  fill: none; stroke: var(--accent); stroke-width: 5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+@keyframes turn-phone {
+  0%, 22% { transform: rotate(0deg); }
+  48%, 78% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+#rotate-text {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+#rotate-sub {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+#rotate-tip {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  color: var(--accent);
+  line-height: 1.6;
+}
+#rotate-tip[hidden] { display: none; }
+
+body.blocked { overflow: hidden; }
+
 /* ---------------- 暫停遮罩 ---------------- */
 #resume-layer {
   position: fixed;
@@ -616,6 +681,97 @@ body.reduced .confetti { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------------- 橫向但很扁的畫面（手機橫放）----------------
+   遊戲只做橫向，所以這裡要把版面排成左右兩欄，不要上下捲。 */
+@media (orientation: landscape) and (max-height: 560px) {
+  /* 整頁鎖在一個畫面裡，要捲的只有便條那一塊 */
+  html, body { height: 100%; overflow: hidden; }
+  #app {
+    height: 100vh;
+    height: 100dvh;
+    padding: 0 12px 6px;
+    gap: 2px;
+    overflow: hidden;
+  }
+  #hud { padding: 4px 0 2px; }
+  #hud-brand { font-size: 0.78rem; }
+  .btn-hud { font-size: 0.72rem; padding: 5px 10px; min-height: 32px; }
+  #scene-root { flex: 1; min-height: 0; align-items: stretch; }
+  #caption { min-height: 1.25em; font-size: 0.84rem; }
+
+  .scene { height: 100%; min-height: 0; gap: 4px; }
+  .prompt { font-size: 0.95rem; }
+  .sub { font-size: 0.78rem; }
+  .btn { font-size: 0.8rem; padding: 5px 11px; min-height: 36px; }
+  .kicker { font-size: 0.68rem; }
+
+  /* 畫圖的兩關：左邊場景、右邊畫布 */
+  .scene-badge, .scene-stand {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 16px;
+    row-gap: 4px;
+    align-items: center;
+    justify-items: center;
+  }
+  .scene-badge > .door-scene,
+  .scene-stand > .stage-holder { grid-column: 1; grid-row: 1 / -1; align-self: center; }
+  .scene-badge > .prompt, .scene-stand > .prompt { grid-column: 2; grid-row: 1; align-self: end; }
+  .scene-badge > .sub, .scene-stand > .sub { display: none; }
+  .scene-badge > .pad, .scene-stand > .pad { grid-column: 2; grid-row: 2; align-self: start; }
+
+  .scene-badge .door-scene { max-height: 86vh; }
+  .scene-stand .stage { max-height: 86vh; }
+  .pad { max-width: 100%; gap: 5px; }
+  .pad-frame {
+    width: auto;
+    height: 46vh;
+    max-width: 100%;
+    box-shadow: 0 2px 0 rgba(47, 42, 38, 0.12);
+    border-radius: 10px;
+  }
+  .pad-status { flex-basis: auto; min-height: 0; font-size: 0.76rem; }
+
+  /* 排練：左邊整個舞台，右邊控制、站位列、便條 */
+  .scene-rehearsal {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 4px;
+  }
+  .scene-rehearsal > .stage-holder {
+    grid-column: 1; grid-row: 1 / -1; align-self: center; min-height: 0;
+  }
+  .scene-rehearsal > .prompt,
+  .scene-rehearsal > .sub { display: none; }
+  .scene-rehearsal > .controls { grid-column: 2; grid-row: 1; gap: 6px; }
+  .scene-rehearsal > .order-strip { grid-column: 2; grid-row: 2; max-width: 100%; }
+  .scene-rehearsal > .clue-panel {
+    grid-column: 2;
+    grid-row: 3;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .scene-rehearsal .stage { max-height: 86vh; }
+  .scene-rehearsal .clue-list { grid-template-columns: 1fr; gap: 5px; }
+  .scene-rehearsal .clue { padding: 6px 24px 6px 7px; gap: 6px; border-radius: 10px; }
+  .scene-rehearsal .clue-text { font-size: 0.74rem; line-height: 1.4; }
+  .scene-rehearsal .clue-icons .symbol-chip { width: 22px; height: 22px; }
+  .scene-rehearsal .panel-title { margin: 0 0 3px; font-size: 0.66rem; letter-spacing: 0.18em; }
+  .scene-rehearsal .slot-btn { min-height: 40px; padding: 2px 0; gap: 0; border-radius: 9px; }
+  .scene-rehearsal .slot-label { font-size: 0.72rem; }
+  .scene-rehearsal .slot-btn .symbol-chip { width: 19px; height: 19px; }
+
+  .scene-finale { justify-content: center; }
+  .scene-finale .stage { max-height: 88vh; }
+  .scene-intro { justify-content: center; gap: 3px; }
+  .scene-intro .door-scene { max-height: 38vh; }
+  .scene-intro .fineprint { font-size: 0.7rem; }
 }
 
 /* ---------------- 手機 ---------------- */
