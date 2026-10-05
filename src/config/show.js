@@ -314,6 +314,16 @@ export const ART = {
   },
 
   /**
+   * 社團 logo。放進 assets/ 之後把下面這行取消註解，
+   * 左上角的「UNISONA」文字就會換成圖。
+   * 路徑是相對於 basePath 的上一層（assets/），不是 assets/art/。
+   * 去背的 PNG 或 SVG 都可以；PNG 建議高度 160px 以上。
+   * 結尾那七張 U-N-I-S-O-N-A 牌子不會換成 logo，那是七個人各舉一個字母拼出來的。
+   */
+  logo: null,
+  // logo: { file: 'logo.png', alt: 'UNISONA', height: 22 },
+
+  /**
    * 手繪的身體比例跟 SVG 小人不一定一樣，
    * 這裡可以逐一微調胸前徽章、頭上名牌、工作證的位置。
    * 省略就用 src/art/layout.js 的 DEFAULT_ANCHORS。

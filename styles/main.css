@@ -60,6 +60,13 @@ body {
   color: var(--ink-soft);
 }
 
+#hud-brand.has-logo { display: flex; align-items: center; }
+.brand-logo {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+
 #hud-controls { display: flex; gap: 8px; }
 
 /* ---------------- 按鈕 ---------------- */

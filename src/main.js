@@ -97,6 +97,19 @@ const app = {
   },
 };
 
+/* ---------------- 社團 logo（有設定才換掉文字） ---------------- */
+if (cfg.ART.logo && cfg.ART.logo.file) {
+  const brand = document.getElementById('hud-brand');
+  const img = h('img', {
+    class: 'brand-logo',
+    src: './assets/' + cfg.ART.logo.file,
+    alt: cfg.ART.logo.alt || 'UNISONA',
+  });
+  if (cfg.ART.logo.height) img.style.height = `${cfg.ART.logo.height}px`;
+  brand.replaceChildren(img);
+  brand.classList.add('has-logo');
+}
+
 /* ---------------- HUD：聲音與動態 ---------------- */
 const soundBtn = button(cfg.TEXTS.hud.soundOn, { class: 'btn btn-hud', 'aria-pressed': 'true' });
 const motionBtn = button(cfg.TEXTS.hud.motionOn, { class: 'btn btn-hud', 'aria-pressed': 'false' });
